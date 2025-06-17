@@ -71,15 +71,15 @@
   </div>
 
   <script>
-    const serverIP = "147.185.221.29";
-    const serverPort = "21827";
+    const serverIP = "robert-fairly.gl.joinmc.link";
+    const serverPort = "";
 
     async function fetchStatus() {
       const statusDiv = document.getElementById("status");
       const updated = document.getElementById("updated");
 
       try {
-        const res = await fetch(`https://api.mcsrvstat.us/2/${serverIP}:${serverPort}`);
+        const res = await fetch(`https://api.mcsrvstat.us/2/${serverIP}`);
         const data = await res.json();
 
         if (!data || !data.online) {
@@ -112,5 +112,7 @@
     fetchStatus(); // First check
     setInterval(fetchStatus, 30000); // Refresh every 30 seconds
   </script>
+</body>
+</html>
 </body>
 </html>
