@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GreezSMP Status</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      color: #00ffc8;
+      text-shadow: 0 0 10px #00ffc8aa;
+    }
+    h2 {
+      font-size: 1.2rem;
+      color: #bbbbbb;
+      margin-bottom: 30px;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 0 20px rgba(0, 255, 200, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .server-icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 10px;
+    }
+    .status {
+      margin-top: 20px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    .online { color: #00ff8c; font-weight: bold; }
+    .offline { color: #ff4e4e; font-weight: bold; }
+    .last-updated {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 15px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>GreezSMP</h1>
+  <h2>Server Status Checker</h2>
+  <div class="glass-card">
+    <div id="status" class="status">Loading status...</div>
+    <p class="last-updated" id="updated">Refreshing...</p>
+  </div>
+
+  <script>
+    const serverIP = "147.185.221.29";
+    const serverPort = "21827";
+
+    async function fetchStatus() {
+      const statusDiv = document.getElementById("status");
+      const updated = document.getElementById("updated");
+
+      try {
+        const res = await fetch(`https://api.mcsrvstat.us/2/${serverIP}:${serverPort}`);
+        const data = await res.json();
+
+        if (!data || !data.online) {
+          statusDiv.innerHTML = `<p class="offline">❌ GreezSMP is currently offline</p>`;
+        } else {
+          const motd = data.motd?.clean?.join("<br>") || "No MOTD";
+          const version = data.version || "Unknown";
+          const players = `${data.players?.online || 0} / ${data.players?.max || 0}`;
+          const icon = data.icon || null;
+
+          statusDiv.innerHTML = `
+            ${icon ? `<img class="server-icon" src="${icon}" alt="Icon">` : ""}
+            <p><strong>Status:</strong> <span class="online">✅ Online</span></p>
+            <p><strong>MOTD:</strong><br>${motd}</p>
+            <p><strong>Players:</strong> ${players}</p>
+            <p><strong>Version:</strong> ${version}</p>
+            <p><strong>IP:</strong> ${serverIP}:${serverPort}</p>
+          `;
+        }
+
+        const now = new Date();
+        updated.textContent = "Last updated: " + now.toLocaleTimeString();
+      } catch (err) {
+        console.error(err);
+        statusDiv.innerHTML = `<p class="offline">❌ Error fetching data</p>`;
+        updated.textContent = "Last updated: failed";
+      }
+    }
+
+    fetchStatus(); // First check
+    setInterval(fetchStatus, 30000); // Refresh every 30 seconds
+  </script>
+</body>
+</html>
